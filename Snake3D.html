@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Snake PWA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Voorkom scrollbalken */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a202c; /* Donkere achtergrond */
+            color: #e2e8f0;
+        }
+        canvas {
+            display: block;
+            border-radius: 1rem; /* Afgeronde hoeken voor canvas */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background-color: #2d3748; /* Donkerdere achtergrond voor het spelbord */
+        }
+        #game-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px; /* Max breedte voor desktop */
+            margin: 1rem;
+            padding: 1rem;
+            background-color: #2d3748;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5rem;
+            border-radius: 1rem;
+        }
+        .control-button {
+            /* Aangepaste styling voor grotere en beter aanraakbare knoppen */
+            @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 text-xl;
+            min-width: 100px; /* Vaste breedte voor knoppen */
+            margin: 0.5rem;
+        }
+        .game-message {
+            @apply text-xl font-bold text-red-400 mt-4;
+        }
+        .game-score {
+            @apply text-2xl font-bold text-green-400 mb-4;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+    <div id="game-container" class="relative bg-gray-800 rounded-2xl shadow-xl p-6 flex flex-col items-center">
+        <div id="loading-screen" class="hidden">Laden...</div>
+
+        <h1 class="text-4xl font-extrabold mb-6 text-indigo-400">3D Snake</h1>
+
+        <div class="flex justify-between items-center w-full mb-4 px-4">
+            <div class="game-score">Score: <span id="score">0</span></div>
+            <button id="restart-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-full shadow-md transition-transform transform hover:scale-105 active:scale-95 text-lg">Opnieuw Starten</button>
+        </div>
+
+        <canvas id="gameCanvas" class="rounded-xl bg-gray-700 border-4 border-gray-600"></canvas>
+
+        <div id="controls" class="mt-6 w-full max-w-sm flex flex-col items-center sm:hidden">
+            <!-- Vertical controls -->
+            <div class="flex justify-center w-full mb-4">
+                <button id="up-button" class="control-button">Omhoog</button>
+            </div>
+            <!-- Horizontal and Depth controls (D-pad like) -->
+            <div class="grid grid-cols-3 gap-2 w-full max-w-xs">
+                <div></div> <!-- Empty for spacing -->
+                <button id="forward-button" class="control-button">Vooruit</button>
+                <div></div> <!-- Empty for spacing -->
+
+                <button id="left-button" class="control-button">Links</button>
+                <!-- Center for visual alignment, no button here -->
+                <div class="flex items-center justify-center"></div>
+                <button id="right-button" class="control-button">Rechts</button>
+
+                <div></div> <!-- Empty for spacing -->
+                <button id="backward-button" class="control-button">Achteruit</button>
+                <div></div> <!-- Empty for spacing -->
+            </div>
+            <!-- Vertical controls -->
+            <div class="flex justify-center w-full mt-4">
+                <button id="down-button" class="control-button">Omlaag</button>
+            </div>
+        </div>
+
+        <div id="game-message" class="game-message hidden"></div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+
+        // Globale variabelen voor Three.js
+        let scene, camera, renderer;
+        let snake, food;
+        let snakeDirection; // Declareren zonder directe initialisatie
+        let snakeBody = [];
+        
