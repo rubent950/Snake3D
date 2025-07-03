@@ -180,7 +180,7 @@
                 // Verberg laadscherm altijd na een korte vertraging om zeker te zijn dat alles is gerenderd
                 setTimeout(() => {
                     loadingScreen.classList.add('hidden');
-                    console.log("Laadscherm verborgen.");
+                    console.log("Laadscherm verborgen."); // Toegevoegde log
                 }, 500); // 500ms vertraging
             }
         };
@@ -214,6 +214,7 @@
             scene.add(directionalLight);
 
             // Game Board (een kubus met randen)
+            // Correctie: boxGeometry moet de volledige gridSize gebruiken
             const boxGeometry = new THREE.BoxGeometry(gridSize * cellSize, gridSize * cellSize, gridSize * cellSize);
             const edges = new THREE.EdgesGeometry(boxGeometry);
             const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x4a5568, linewidth: 2 }));
