@@ -6,7 +6,7 @@
     <title>3D Snake PWA</title>
     <link rel="manifest" href="/manifest.json"> <!-- Belangrijk: link naar manifest.json -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Belangrijke wijziging: Verwijder 'type="module"' voor three.min.js. Het laadt nu globaal. -->
+    <!-- Three.js laadt nu globaal, geen 'type="module"' -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -114,8 +114,7 @@
     </div>
 
     <!-- Plaats het script aan het einde van de body voor optimale laadvolgorde -->
-    <script type="module">
-        // Belangrijke wijziging: Verwijder de 'import * as THREE' regel.
+    <script>
         // THREE is nu globaal beschikbaar omdat three.min.js als een regulier script is geladen.
 
         // Globale variabelen voor Three.js
@@ -162,26 +161,33 @@
         // Initialiseer de game
         // Gebruik window.onload om te garanderen dat alle externe bronnen (inclusief Three.js) zijn geladen
         window.onload = function() {
+            console.log("window.onload geactiveerd.");
             loadingScreen.classList.remove('hidden'); // Toon laadscherm
             try {
                 // Controleer of THREE is gedefinieerd voordat init() wordt aangeroepen
                 if (typeof THREE === 'undefined') {
                     throw new Error("THREE.js is niet geladen. Controleer de script tag.");
                 }
+                console.log("THREE.js gedetecteerd, initialisatie start.");
                 init();
                 animate();
+                console.log("Spel initialisatie en animatie gestart.");
             } catch (error) {
                 console.error("Fout bij initialiseren van het spel:", error);
                 gameMessageElement.textContent = "Er is een fout opgetreden bij het laden van het spel. Controleer de console voor details.";
                 gameMessageElement.classList.remove('hidden');
             } finally {
-                // Verberg laadscherm altijd, ongeacht succes of fout
-                loadingScreen.classList.add('hidden');
+                // Verberg laadscherm altijd na een korte vertraging om zeker te zijn dat alles is gerenderd
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    console.log("Laadscherm verborgen.");
+                }, 500); // 500ms vertraging
             }
         };
 
 
         function init() {
+            console.log("init() gestart.");
             // Scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x2d3748); // Achtergrondkleur van de scene
@@ -231,6 +237,7 @@
             rightButton.addEventListener('click', () => setSnakeDirection(1, 0, 0));
             forwardButton.addEventListener('click', () => setSnakeDirection(0, 0, -1)); // Vooruit (Z-as, negatief)
             backwardButton.addEventListener('click', () => setSnakeDirection(0, 0, 1)); // Achteruit (Z-as, positief)
+            console.log("init() voltooid.");
         }
 
         function onWindowResize() {
@@ -289,6 +296,7 @@
         }
 
         function resetGame() {
+            console.log("resetGame() gestart.");
             // Verwijder oude slang en voedsel
             snakeBody.forEach(segment => scene.remove(segment));
             if (food) scene.remove(food);
@@ -323,6 +331,7 @@
             snake = snakeBody[0]; // Hoofd van de slang
 
             placeFood();
+            console.log("resetGame() voltooid.");
         }
 
         function onKeyDown(event) {
