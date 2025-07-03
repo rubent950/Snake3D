@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Snake PWA</title>
+    <link rel="manifest" href="/manifest.json"> <!-- Belangrijk: link naar manifest.json -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
@@ -161,12 +162,13 @@
             try {
                 init();
                 animate();
-                loadingScreen.classList.add('hidden'); // Verberg laadscherm na initialisatie
             } catch (error) {
                 console.error("Fout bij initialiseren van het spel:", error);
                 gameMessageElement.textContent = "Er is een fout opgetreden bij het laden van het spel. Controleer de console voor details.";
                 gameMessageElement.classList.remove('hidden');
-                loadingScreen.classList.add('hidden'); // Verberg laadscherm ook bij fout
+            } finally {
+                // Verberg laadscherm altijd, ongeacht succes of fout
+                loadingScreen.classList.add('hidden');
             }
         };
 
