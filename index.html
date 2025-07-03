@@ -6,7 +6,6 @@
     <title>3D Snake PWA</title>
     <link rel="manifest" href="/manifest.json"> <!-- Belangrijk: link naar manifest.json -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -112,6 +111,7 @@
         <div id="game-message" class="game-message hidden"></div>
     </div>
 
+    <!-- Plaats het script aan het einde van de body voor optimale laadvolgorde -->
     <script type="module">
         import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
 
@@ -145,7 +145,7 @@
 
         // Service Worker registratie
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+            window.addEventListener('load', () => { // Gebruik window.onload voor Service Worker registratie
                 navigator.serviceWorker.register('/service-worker.js') // Verwijst nu naar apart bestand
                     .then(registration => {
                         console.log('Service Worker geregistreerd met scope:', registration.scope);
@@ -157,6 +157,7 @@
         }
 
         // Initialiseer de game
+        // Gebruik window.onload om te garanderen dat alle externe bronnen (inclusief Three.js) zijn geladen
         window.onload = function() {
             loadingScreen.classList.remove('hidden'); // Toon laadscherm
             try {
@@ -171,6 +172,7 @@
                 loadingScreen.classList.add('hidden');
             }
         };
+
 
         function init() {
             // Scene
