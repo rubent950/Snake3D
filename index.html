@@ -6,6 +6,8 @@
     <title>3D Snake PWA</title>
     <link rel="manifest" href="/manifest.json"> <!-- Belangrijk: link naar manifest.json -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Belangrijke wijziging: Verwijder 'type="module"' voor three.min.js. Het laadt nu globaal. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -113,7 +115,8 @@
 
     <!-- Plaats het script aan het einde van de body voor optimale laadvolgorde -->
     <script type="module">
-        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+        // Belangrijke wijziging: Verwijder de 'import * as THREE' regel.
+        // THREE is nu globaal beschikbaar omdat three.min.js als een regulier script is geladen.
 
         // Globale variabelen voor Three.js
         let scene, camera, renderer;
@@ -161,6 +164,10 @@
         window.onload = function() {
             loadingScreen.classList.remove('hidden'); // Toon laadscherm
             try {
+                // Controleer of THREE is gedefinieerd voordat init() wordt aangeroepen
+                if (typeof THREE === 'undefined') {
+                    throw new Error("THREE.js is niet geladen. Controleer de script tag.");
+                }
                 init();
                 animate();
             } catch (error) {
